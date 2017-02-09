@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DES;
 
 namespace DESWF
 {
@@ -16,7 +19,8 @@ namespace DESWF
 		{
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new Form1());
+			var mainForm = new MainForm();
+			Application.Run(mainForm);
 		}
 	}
 }
