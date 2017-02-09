@@ -1,4 +1,5 @@
-﻿using System;
+﻿///
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,6 +46,11 @@ namespace DES
 				//Do encryption here
 			}
 			
+		}
+
+		public void DecryptWithDes()
+		{
+			//TODO: Pass in cipher text, update a plaintext property, display plaintext in text area of win form
 		}
 
 		public void SetLeft32Bits(BitArray messageAfterIp)
