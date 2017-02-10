@@ -49,6 +49,13 @@ namespace DESWF
 					desCipher.EncryptWithDes(Plaintext);
 					break;
 			}
+
+			//Call next method here
+		}
+
+		public void set_field()
+		{
+			tbCiphertext.Text = desCipher.CipherTextExample;
 		}
 
 		private void SetCipherChoice()
