@@ -1,8 +1,10 @@
 ﻿///
 using System;
+using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using DESWF;
@@ -11,17 +13,12 @@ namespace DES
 {
 	class DesCipher
 	{
+		
 		public BitArray Left32Bits = new BitArray(32);
 		public BitArray Right32Bits = new BitArray(32);
-		public Plaintext PlaintextObject = new Plaintext();
-
-		//TotalNumberOfEightByteBlocks is the number of times DES algo will run
-		private int TotalNumberOfEightByteBlocks => Remainder != 0 ? (PlaintextObject.EncodedValue.Length / 8) + 1 : (PlaintextObject.EncodedValue.Length / 8);
-		private int Remainder => PlaintextObject.EncodedValue.Length % 8;
+		public Plaintext Message = new Plaintext();
+		public BitArray MessageAfterInitialPermutation = new BitArray(64);
 		
-		//List stores multiple byte arrays where each byte array contains 8 bytes
-		public List<Byte[]> EightByteArrayList = new List<byte[]>();
-
 		public static readonly int[] IpValues = 
 			{
 				58,50,42,34,26,18,10,2,60,52,44,36,28,20,12,4,
@@ -30,22 +27,42 @@ namespace DES
 				61,53,45,37,29,21,13,5,63,55,47,39,31,23,15,7
 			};
 
+		private List<BitArray> _listOfBitBlocks;
+
 		/// <summary>
 		/// Method creates a byte[] from plaintext string.
-		/// Extracts 64 bits at a time until PlaintextObject.Value is totally encrypted.
+		/// Extracts 64 bits at a time until Message.Value is totally encrypted.
 		/// Will set cipher text.
 		/// </summary>
 		/// <param name="plaintext"></param>
 		public void EncryptWithDes(string plaintext)
 		{
-			PlaintextObject.Value = plaintext;
-			PlaintextObject.EncodedValue = Encoding.ASCII.GetBytes(PlaintextObject.Value);
-			for (int i = 0; i < TotalNumberOfEightByteBlocks; i++)
+			Message.Value = plaintext;
+			Message.EncodedByteArray = Encoding.ASCII.GetBytes(Message.Value);
+			Message.EncodedBitArray = ConvertToBitArray(Message.EncodedByteArray);//Message.Encoded bit array stores all bits from plain text conversion
+			ConvertEncodedBitArrayToListOfBitBlocks();
+
+			foreach (var block in _listOfBitBlocks)
 			{
-				//Must encrypt each 8 byte block and then append the encyrpted block to cipher text
-				//Do encryption here
+				//encrypt and append
 			}
-			
+		}
+
+		private void ConvertEncodedBitArrayToListOfBitBlocks()
+		{
+			_listOfBitBlocks = new List<BitArray>();
+			_listOfBitBlocks.Capacity = (Message.EncodedBitArray.Length % 64 != 0)
+				? (Message.EncodedBitArray.Count / 64) + 1
+				: Message.EncodedBitArray.Count / 64;
+			for (int i = 0; i < _listOfBitBlocks.Capacity; i++)
+			{
+				var temp = new BitArray(64);
+				for (int j = i * 64; j < (i * 64) + 64; j++)
+				{
+					temp[j] = Message.EncodedBitArray[j];
+				}
+				_listOfBitBlocks[i] = temp;
+			}
 		}
 
 		public void DecryptWithDes()
@@ -55,7 +72,7 @@ namespace DES
 
 		public void SetLeft32Bits(BitArray messageAfterIp)
 		{
-			for (int i = 0; i < 32; i++)
+			for (var i = 0; i < 32; i++)
 			{
 				Left32Bits[i] = messageAfterIp[i];
 			}
@@ -85,12 +102,22 @@ namespace DES
 			}
 		}
 
+		/// <summary>
+		/// Accepts 8 bytes and converts to a bit array of 64 bits.
+		/// </summary>
+		/// <param name="input"></param>
+		/// <returns></returns>
+		public BitArray ConvertToBitArray(byte[] input)
+		{
+			if(input.Length > 8) throw new Exception("Only convert 8 bytes (64 bits at at time");
+			return new BitArray(input);
+		}
+
 		public static BitArray ApplyInitialPermutation(BitArray messageBeforeIp)
 		{
 			var messageAfterIp = new BitArray(messageBeforeIp.Count);
-			for (int i = 0; i < messageBeforeIp.Count; i++)
+			for (var i = 0; i < messageBeforeIp.Count; i++)
 			{
-				//Console.Write("\nMessageBeforeIp bit at position: " + i + " is being swapped with bit at position: " + DesCipher.IpValues[i]);
 				messageAfterIp[i] = messageBeforeIp[DesCipher.IpValues[i] - 1];
 			}
 			return messageAfterIp;

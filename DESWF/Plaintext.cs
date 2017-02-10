@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.AccessControl;
@@ -16,6 +17,7 @@ namespace DES
 		/// <summary>
 		/// This is the plain text after encoded into a byte array
 		/// </summary>
-		public byte[] EncodedValue { get; set; }
+		public byte[] EncodedByteArray { get; set; }
+		public BitArray EncodedBitArray { get; set; }
 	}
 }
