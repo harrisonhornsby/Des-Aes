@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -31,8 +32,18 @@ namespace DESWF
 		{
 			InitializeComponent();
 		}
-		
 
+		private void btnGenerateKey_Click(object sender, EventArgs e)
+		{
+			var selectedKey = (groupBox4.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked).Text);
+			var numGen = RandomNumberGenerator.Create();
+			var size = Int32.Parse(selectedKey);
+			Byte[] ba = new byte[size];
+			numGen.GetBytes(ba);
+			tbKey.Text = BitConverter.ToString(ba).Replace("-", string.Empty);
+			
+		}
+		
 		private void btnEncrypt_Click(object sender, EventArgs e)
 		{
 			SetCipherChoice();
@@ -52,12 +63,7 @@ namespace DESWF
 
 			//Call next method here
 		}
-
-		public void set_field()
-		{
-			tbCiphertext.Text = desCipher.CipherTextExample;
-		}
-
+		
 		private void SetCipherChoice()
 		{
 			ChosenCipherString = (groupBox1.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked).Text);

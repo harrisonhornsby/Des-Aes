@@ -15,7 +15,6 @@ namespace DES
 				61,53,45,37,29,21,13,5,63,55,47,39,31,23,15,7
 			};
 
-		public string CipherTextExample;
 		public BitArray Left32Bits = new BitArray(32);
 		public Plaintext Message = new Plaintext();
 		public BitArray MessageAfterInitialPermutation = new BitArray(64);
