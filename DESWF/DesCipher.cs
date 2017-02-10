@@ -57,11 +57,11 @@ namespace DES
 			for (int i = 0; i < _listOfBitBlocks.Capacity; i++)
 			{
 				var temp = new BitArray(64);
-				for (int j = i * 64; j < (i * 64) + 64; j++)
+				for (int j = i * 64, k = 0; j < (i * 64) + 64 && j < Message.EncodedBitArray.Count; j++, k++)
 				{
-					temp[j] = Message.EncodedBitArray[j];
+					temp[k] = Message.EncodedBitArray[j];
 				}
-				_listOfBitBlocks[i] = temp;
+				_listOfBitBlocks.Add(temp);
 			}
 		}
 
@@ -109,7 +109,6 @@ namespace DES
 		/// <returns></returns>
 		public BitArray ConvertToBitArray(byte[] input)
 		{
-			if(input.Length > 8) throw new Exception("Only convert 8 bytes (64 bits at at time");
 			return new BitArray(input);
 		}
 
