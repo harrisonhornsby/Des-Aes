@@ -25,13 +25,54 @@ namespace DES
 			1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1
 		};
 
+		public static readonly int[] ParityBitPermutation =
+		{
+			57, 49, 41, 33, 25, 17, 9
+
+			, 1, 58, 50, 42, 34, 26, 18
+
+			, 10, 2, 59, 51, 43, 35, 27
+
+			, 19, 11, 3, 60, 52, 44, 36
+
+			, 63, 55, 47, 39, 31, 23, 15
+
+			, 7, 62, 54, 46, 38, 30, 22
+
+			, 14, 6, 61, 53, 45, 37, 29
+
+			, 21, 13, 5, 28, 20, 12, 4
+		};
+
+		public static readonly int[] ShrinkKeyToFourtyEightBits =
+		{
+			14,17,11,24, 1,5
+
+				,3,28,15, 6,21,10
+
+				,23,19,12, 4,26,8
+
+				,16, 7,27,20,13,2
+
+				,41,52,31,37,47,55
+
+				,30,40,51,45,33,48
+
+				,44,49,39,56,34,53
+
+				,46,42,50,36,29,32
+		};
+
+
+
 		public BitArray Left32Bits = new BitArray(32);
 		public Plaintext Message = new Plaintext();
 		public BitArray MessageAfterInitialPermutation = new BitArray(64);
 		public BitArray Right32Bits = new BitArray(32);
 		private List<BitArray> _listOfBitBlocks;
 		private BitArray _originalKey;
-		private List<BitArray> _roundKeyList;
+		private List<BitArray> _roundKeyList = new List<BitArray>();
+		private BitArray _KeyAfterDroppedParityBits;
 
 		public static BitArray ApplyInitialPermutation(BitArray messageBeforeIp)
 		{
@@ -42,17 +83,45 @@ namespace DES
 			}
 			return messageAfterIp;
 		}
+		/// <summary>
+		/// Apply parity bit permutation. Takes 64 bit key down to 56 bits for use within key scheduler.
+		/// </summary>
+		/// <param name="originalKey"></param>
+		/// <returns></returns>
+		public static BitArray GetKeyAfterParityBitPermutation(BitArray originalKey)
+		{
+			var keyAfterParityPermutation = new BitArray(56);
+			for (int i = 0; i < 56; i++)
+			{
+				keyAfterParityPermutation[i] = originalKey[ParityBitPermutation[i]];
+			}
+			return keyAfterParityPermutation;
+		}
 
-		public List<BitArray> GetRoundKeyList()
+		public static BitArray GetShrunkenKey(BitArray bitShiftedKey)
+		{
+			var keyAfterShrinking = new BitArray(48);
+			for (int i = 0; i < 48; i++)
+			{
+				keyAfterShrinking[i] = bitShiftedKey[ShrinkKeyToFourtyEightBits[i]-1];
+			}
+			return keyAfterShrinking;
+		}
+
+		public void CreateRoundKeyList()
 		{
 			//Drop parity bits then use that result in the below for loop, key should be 56 bits when entering for loop
-			//_shortenedKey = DropParityBits(_originalKey);
+			_KeyAfterDroppedParityBits = GetKeyAfterParityBitPermutation(_originalKey);
+			var bitShiftedKey = new BitArray(56);
+			var shrunkenKey = new BitArray(48);
 			for (int i = 0; i < 16; i++)
 			{
 				//Bit shift the shortened key from before loop entry
-				//_roundKeyList[i] = ShiftBits(NumberBitsShiftPerRound[i], _originalKey);
+				//shrink output of above to 48 bits then store in round key list
+				bitShiftedKey = ShiftBits(NumberBitsShiftPerRound[i], _KeyAfterDroppedParityBits);
+				shrunkenKey = GetShrunkenKey(bitShiftedKey);
+				_roundKeyList.Add(shrunkenKey);
 			}
-			return new List<BitArray>();
 		}
 
 		/// <summary>
@@ -68,9 +137,9 @@ namespace DES
 			{
 				if (i - shiftSize < 0)
 				{
-					originalKey[originalKey.Count-1] = originalKey[i];
+					originalKey[originalKey.Count - 1] = originalKey[i];
 				}
-					else originalKey[i - shiftSize] = originalKey[i];
+				else originalKey[i - shiftSize] = originalKey[i];
 			}
 			var newRoundKey = originalKey;
 			return newRoundKey;
@@ -139,10 +208,10 @@ namespace DES
 					Right32Bits = GetRight32Expanded();
 
 					//Build the round keys
-					_roundKeyList = GetRoundKeyList();
+					CreateRoundKeyList();
 
 					//XOR R(expanded) with Round key(ith iteration)
-					Right32Bits.Xor(_roundKeyList[round]);
+					var XorResult = Right32Bits.Xor(_roundKeyList[round]);
 
 
 					//Break the 48 bits down to eight 6 bit blocks, b1 to b8
@@ -162,7 +231,7 @@ namespace DES
 			BitArray right32Expanded = new BitArray(48);
 			for (int i = 0; i < 48; i++)
 			{
-				right32Expanded[i] = Right32Bits[ExpansionValues[i]-1];
+				right32Expanded[i] = Right32Bits[ExpansionValues[i] - 1];
 			}
 			return right32Expanded;
 		}
