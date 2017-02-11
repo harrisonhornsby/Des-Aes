@@ -200,14 +200,14 @@ namespace DESWF
 			// rb56BitKey
 			// 
 			this.rb56BitKey.AutoSize = true;
+			this.rb56BitKey.Checked = true;
 			this.rb56BitKey.Location = new System.Drawing.Point(198, 36);
 			this.rb56BitKey.Name = "rb56BitKey";
 			this.rb56BitKey.Size = new System.Drawing.Size(45, 21);
 			this.rb56BitKey.TabIndex = 5;
 			this.rb56BitKey.TabStop = true;
-			this.rb56BitKey.Text = "56";
+			this.rb56BitKey.Text = "64";
 			this.rb56BitKey.UseVisualStyleBackColor = true;
-			this.rb56BitKey.Checked = true;
 			// 
 			// tbKey
 			// 

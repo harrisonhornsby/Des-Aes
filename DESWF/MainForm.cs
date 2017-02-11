@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -18,6 +19,7 @@ namespace DESWF
 		public string CiphertextString;
 		public string ChosenCipherString;
 		public Cipher ChosenCipher;
+		public BitArray Key;
 
 		DesCipher desCipher = new DesCipher();
 		AesCipher aesCipher = new AesCipher();
@@ -27,6 +29,11 @@ namespace DESWF
 			Des,
 			Aes
 		};
+
+		public BitArray ConvertToBitArray(byte[] input)
+		{
+			return new BitArray(input);
+		}
 
 		public MainForm()
 		{
@@ -38,8 +45,9 @@ namespace DESWF
 			var selectedKey = (groupBox4.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked).Text);
 			var numGen = RandomNumberGenerator.Create();
 			var size = Int32.Parse(selectedKey);
-			Byte[] ba = new byte[size];
+			Byte[] ba = new byte[size/8];
 			numGen.GetBytes(ba);
+			Key = ConvertToBitArray(ba);
 			tbKey.Text = BitConverter.ToString(ba).Replace("-", string.Empty);
 			
 		}
@@ -57,7 +65,7 @@ namespace DESWF
 					break;
 
 					case Cipher.Des:
-					desCipher.EncryptWithDes(Plaintext);
+					desCipher.EncryptWithDes(Plaintext, Key);
 					break;
 			}
 
