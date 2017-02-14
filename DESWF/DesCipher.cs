@@ -344,7 +344,8 @@ namespace DESWF
 		{
 			_originalKey = key;
 			Message.Value = plaintext;
-			Message.EncodedByteArray = Encoding.UTF8.GetBytes(Message.Value);
+			//TODO: Investigate encoding issue, trace code from plaintext input -> encoded byte array -> binary and from binary-> encoded byte array -> plaintext
+			Message.EncodedByteArray = Encoding.Default.GetBytes(Message.Value);
 			Message.EncodedBitArray = ConvertToBitArray(Message.EncodedByteArray);//Message.Encoded bit array stores all bits from plain text conversion
 			ConvertEncodedBitArrayToListOfBitBlocks();
 
