@@ -74,7 +74,7 @@ namespace DESWF
 
 				,46,42,50,36,29,32
 		};
-
+		
 		public static readonly int[] COutputPermutation =
 		{
 			16, 7, 20, 21, 29, 12, 28, 17, 1, 15, 23, 26, 5, 18, 31, 10,
@@ -218,7 +218,7 @@ namespace DESWF
 		public List<BitArray> EncryptedBlockList = new List<BitArray>();
 		public string CipherTextString;
 		public BitArray CipherTextBitArray;
-
+		
 		public static BitArray ApplyInitialPermutation(BitArray messageBeforeIp)
 		{
 			var messageAfterIp = new BitArray(messageBeforeIp.Count);
@@ -344,7 +344,7 @@ namespace DESWF
 		{
 			_originalKey = key;
 			Message.Value = plaintext;
-			Message.EncodedByteArray = Encoding.ASCII.GetBytes(Message.Value);
+			Message.EncodedByteArray = Encoding.UTF8.GetBytes(Message.Value);
 			Message.EncodedBitArray = ConvertToBitArray(Message.EncodedByteArray);//Message.Encoded bit array stores all bits from plain text conversion
 			ConvertEncodedBitArrayToListOfBitBlocks();
 

@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
 using System.Windows.Forms;
 
 namespace DESWF
@@ -15,7 +16,7 @@ namespace DESWF
 		public Cipher ChosenCipher;
 		public BitArray Key;
 
-		private DesCipher desCipher = new DesCipher();
+		
 		private AesCipher aesCipher = new AesCipher();
 
 		public enum Cipher
@@ -54,15 +55,22 @@ namespace DESWF
 			switch (ChosenCipher)
 			{
 				case Cipher.Aes:
+					AesCipher aesCipher = new AesCipher();
 					aesCipher.EncryptWithAes(Plaintext);
 					break;
 
 				case Cipher.Des:
+					DesCipher desCipher = new DesCipher();
 					desCipher.EncryptWithDes(Plaintext, Key);
+					tbCiphertext.Text = desCipher.GetStringBitArray(desCipher.CipherTextBitArray);
+
+					byte[] bytes = new byte[desCipher.CipherTextBitArray.Count/8];
+					desCipher.CipherTextBitArray.CopyTo(bytes,0);
+					//tbCiphertext.Text += "\n" + Encoding.UTF8.GetString(bytes);
 					break;
 			}
 
-			tbCiphertext.Text = desCipher.GetStringBitArray(desCipher.CipherTextBitArray);
+			
 
 			//Call next method here
 		}
