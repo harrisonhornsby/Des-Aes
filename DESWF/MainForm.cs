@@ -62,6 +62,8 @@ namespace DESWF
 					break;
 			}
 
+			tbCiphertext.Text = desCipher.GetStringBitArray(desCipher.CipherTextBitArray);
+
 			//Call next method here
 		}
 
