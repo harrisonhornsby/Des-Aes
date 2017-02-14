@@ -3,7 +3,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace DES
@@ -208,6 +207,7 @@ namespace DES
 			}
 			return messageAfterIp;
 		}
+
 		/// <summary>
 		/// Apply parity bit permutation. Takes 64 bit key down to 56 bits for use within key scheduler.
 		/// </summary>
@@ -228,7 +228,7 @@ namespace DES
 			var keyAfterShrinking = new BitArray(48);
 			for (int i = 0; i < 48; i++)
 			{
-				keyAfterShrinking[i] = bitShiftedKey[ShrinkKeyToFourtyEightBits[i]-1];
+				keyAfterShrinking[i] = bitShiftedKey[ShrinkKeyToFourtyEightBits[i] - 1];
 			}
 			return keyAfterShrinking;
 		}
@@ -337,7 +337,7 @@ namespace DES
 
 					//XOR Right side with Round key(ith iteration)
 					var XorResult = Right32Bits.Xor(_roundKeyList[round]);
-					
+
 					//Break the 48 bits down to eight 6 bit blocks, b1 to b8
 					List<BitArray> sixBitBlocks = new List<BitArray>();
 
@@ -355,7 +355,7 @@ namespace DES
 
 					//Run each 6 bit block through it's respective s box, get output C
 					var cOutputArray = new int[8];
-					for(int i = 0; i < 8; i++)
+					for (int i = 0; i < 8; i++)
 					{
 						var row = GetSboxRow(sixBitBlocks[i]);
 						var col = GetSboxColumn(sixBitBlocks[i]);
@@ -365,7 +365,7 @@ namespace DES
 					//result should be C1 to C8 which are 4 bit outputs from the s box permutations
 					foreach (var c in cOutputArray)
 					{
-						Console.WriteLine(c+"\n");
+						Console.WriteLine(c + "\n");
 					}
 					//apply final substitution permutation
 					//result of this final permutation is the output of the function
@@ -408,14 +408,12 @@ namespace DES
 
 		private int getIntFromBitArray(BitArray bitArray)
 		{
-
 			if (bitArray.Length > 32)
 				throw new ArgumentException("Argument length shall be at most 32 bits.");
 
 			int[] array = new int[1];
 			bitArray.CopyTo(array, 0);
 			return array[0];
-
 		}
 
 		public void SetLeft32Bits(BitArray messageAfterIp)
