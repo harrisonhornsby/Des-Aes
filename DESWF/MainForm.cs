@@ -1,7 +1,6 @@
 ﻿using MlkPwgen;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -24,11 +23,6 @@ namespace DESWF
 			Aes
 		};
 
-		public BitArray ConvertToBitArray(byte[] input)
-		{
-			return new BitArray(input);
-		}
-
 		public MainForm()
 		{
 			InitializeComponent();
@@ -42,13 +36,13 @@ namespace DESWF
 
 			BitArray temp = new BitArray(Encoding.UTF8.GetBytes(key));
 			Key = temp;
-			tbKey.Text = DesCipher.ConvertBitArrayToString(Key); //BitConverter.ToString(ba).Replace("-", string.Empty);
+			tbKey.Text = ConversionService.BitArrayToString(Key);
 		}
 
 		private void btnEncrypt_Click(object sender, EventArgs e)
 		{
 			SetCipherChoice();
-			Plaintext = DesCipher.ConvertStringToBitArray(tbPlaintext.Text);
+			Plaintext = ConversionService.StringToBitArray(tbPlaintext.Text);
 
 			switch (ChosenCipher)
 			{
@@ -63,14 +57,12 @@ namespace DESWF
 					tbCiphertext.Text = desCipher.CipherTextString;
 					break;
 			}
-
-			//Call next method here
 		}
 
 		private void btnDecrypt_Click(object sender, EventArgs e)
 		{
 			SetCipherChoice();
-			Plaintext = DesCipher.ConvertStringToBitArray(tbCiphertext.Text);
+			Plaintext = ConversionService.StringToBitArray(tbCiphertext.Text);
 
 			switch (ChosenCipher)
 			{
@@ -86,43 +78,23 @@ namespace DESWF
 					break;
 			}
 		}
+
 		private void btnBinaryToText_Click(object sender, EventArgs e)
 		{
 			var binary = tbBinary.Text;
-			tbText.Text = BinaryToString(binary);
+			tbText.Text = ConversionService.BinaryStringToText(binary);
 		}
+
 		private void btnTextToBinary_Click(object sender, EventArgs e)
 		{
 			var text = tbText.Text;
-			tbBinary.Text = StringToBinary(text);
+			tbBinary.Text = ConversionService.TextToBinaryString(text);
 		}
 
 		private void SetCipherChoice()
 		{
 			ChosenCipherString = (groupBox1.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked).Text);
 			ChosenCipher = ChosenCipherString == "AES" ? Cipher.Aes : Cipher.Des;
-		}
-
-		public static string StringToBinary(string data)
-		{
-			StringBuilder sb = new StringBuilder();
-
-			foreach (char c in data.ToCharArray())
-			{
-				sb.Append(Convert.ToString(c, 2).PadLeft(8, '0'));
-			}
-			return sb.ToString();
-		}
-
-		public static string BinaryToString(string data)
-		{
-			List<Byte> byteList = new List<Byte>();
-
-			for (int i = 0; i < data.Length; i += 8)
-			{
-				byteList.Add(Convert.ToByte(data.Substring(i, 8), 2));
-			}
-			return Encoding.ASCII.GetString(byteList.ToArray());
 		}
 	}
 }

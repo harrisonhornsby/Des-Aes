@@ -5,7 +5,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 
 namespace DESWF
 {
@@ -236,58 +235,6 @@ namespace DESWF
 			return newRoundKey;
 		}
 
-		public static string ConvertBitArrayToString(BitArray bitArray, bool? splitBytes = false)
-		{
-			var count = 0;
-			string output = "";
-			foreach (var bit in bitArray)
-			{
-				output += bit.Equals(true) ? "1" : "0";
-				count++;
-				if (count == 8 && splitBytes == true)
-				{
-					output += "  ";
-					count = 0;
-				}
-			}
-			return output;
-		}
-
-		public BitArray ConvertToBitArrayInProperOrder(byte[] input)
-		{
-			BitArray array = new BitArray(input);
-			int length = array.Length;
-			int mid = (length / 2);
-
-			for (int i = 0; i < mid; i++)
-			{
-				bool bit = array[i];
-				array[i] = array[length - i - 1];
-				array[length - i - 1] = bit;
-			}
-			return array;
-		}
-
-		public static string BinaryStringToHexString(string binary)
-		{
-			StringBuilder result = new StringBuilder(binary.Length / 8 + 1);
-
-			int mod4Len = binary.Length % 8;
-			if (mod4Len != 0)
-			{
-				// pad to length multiple of 8
-				binary = binary.PadLeft(((binary.Length / 8) + 1) * 8, '0');
-			}
-
-			for (int i = 0; i < binary.Length; i += 8)
-			{
-				string eightBits = binary.Substring(i, 8);
-				result.AppendFormat("{0:X2}", Convert.ToByte(eightBits, 2));
-			}
-
-			return result.ToString();
-		}
-
 		/// <summary>
 		/// Accepts 8 bytes and converts to a bit array of 64 bits.
 		/// </summary>
@@ -310,7 +257,7 @@ namespace DESWF
 		public void EncryptWithDes(BitArray input, bool encrypt, BitArray key)
 		{
 			_originalKey = key;
-			Message.ValueInString = ConvertBitArrayToString(input);
+			Message.ValueInString = ConversionService.BitArrayToString(input);
 			Message.ValueInBits = input;//Message.Encoded bit array stores all bits from plain text conversion
 			ConvertMessageBitArrayToListOfBitBlocks();
 
@@ -337,7 +284,7 @@ namespace DESWF
 
 			foreach (var encryptedBlock in EncryptedBlockList)
 			{
-				CipherTextString += ConvertBitArrayToString(encryptedBlock);
+				CipherTextString += ConversionService.BitArrayToString(encryptedBlock);
 			}
 		}
 
@@ -394,7 +341,7 @@ namespace DESWF
 				binaryString += Convert.ToString(SboxList[i][row, col], 2).PadLeft(4, '0');
 			}
 
-			var cOutput = ConvertStringToBitArray(binaryString);
+			var cOutput = ConversionService.StringToBitArray(binaryString);
 
 			BitArray cOutputAfterPermutation = new BitArray(32);
 			for (int i = 0; i < 32; i++)
@@ -402,34 +349,6 @@ namespace DESWF
 				cOutputAfterPermutation[i] = cOutput[COutputPermutation[i] - 1];
 			}
 			return cOutputAfterPermutation;
-		}
-
-		public static byte[] ConvertBitArrayToByteArray(BitArray bits)
-		{
-			byte[] ret = new byte[(bits.Length - 1) / 8 + 1];
-			bits.CopyTo(ret, 0);
-			return ret;
-		}
-
-		public static BitArray ConvertStringToBitArray(string binaryString)
-		{
-			BitArray cOutput = new BitArray(binaryString.Length);
-			var num = binaryString.Length;
-			var cOutputCounter = 0;
-			foreach (var letter in binaryString)
-			{
-				if (letter == '0')
-				{
-					cOutput[cOutputCounter] = false;
-				}
-				else
-				{
-					cOutput[cOutputCounter] = true;
-				}
-
-				cOutputCounter++;
-			}
-			return cOutput;
 		}
 
 		private BitArray GetRight32Expanded()
@@ -448,7 +367,7 @@ namespace DESWF
 			temp[0] = b[0];
 			temp[1] = b[5];
 
-			return getIntFromBitArray(temp);
+			return ConversionService.BitArrayToInt(temp);
 		}
 
 		public BitArray GetCombinedLeftRightSides(BitArray left, BitArray right)
@@ -475,17 +394,7 @@ namespace DESWF
 			temp[2] = b[3];
 			temp[3] = b[4];
 
-			return getIntFromBitArray(temp);
-		}
-
-		private int getIntFromBitArray(BitArray bitArray)
-		{
-			if (bitArray.Length > 32)
-				throw new ArgumentException("Argument length shall be at most 32 bits.");
-
-			int[] array = new int[1];
-			bitArray.CopyTo(array, 0);
-			return array[0];
+			return ConversionService.BitArrayToInt(temp);
 		}
 
 		public void SetLeft32Bits(BitArray messageAfterIp)
