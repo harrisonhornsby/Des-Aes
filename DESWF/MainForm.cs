@@ -1,11 +1,9 @@
-﻿using DES;
+﻿using MlkPwgen;
 using System;
 using System.Collections;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
-using MlkPwgen;
 
 namespace DESWF
 {
@@ -17,7 +15,6 @@ namespace DESWF
 		public Cipher ChosenCipher;
 		public BitArray Key;
 
-		
 		private AesCipher aesCipher = new AesCipher();
 
 		public enum Cipher
@@ -65,8 +62,6 @@ namespace DESWF
 					tbCiphertext.Text = desCipher.CipherTextString;
 					break;
 			}
-
-			
 
 			//Call next method here
 		}
