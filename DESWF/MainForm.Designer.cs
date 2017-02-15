@@ -49,10 +49,18 @@ namespace DESWF
 			this.rb56BitKey = new System.Windows.Forms.RadioButton();
 			this.tbKey = new System.Windows.Forms.TextBox();
 			this.btnGenerateKey = new System.Windows.Forms.Button();
+			this.groupBox5 = new System.Windows.Forms.GroupBox();
+			this.tbText = new System.Windows.Forms.TextBox();
+			this.label5 = new System.Windows.Forms.Label();
+			this.btnTextToBinary = new System.Windows.Forms.Button();
+			this.btnBinaryToText = new System.Windows.Forms.Button();
+			this.tbBinary = new System.Windows.Forms.TextBox();
+			this.label6 = new System.Windows.Forms.Label();
 			this.groupBox1.SuspendLayout();
 			this.groupBox2.SuspendLayout();
 			this.groupBox3.SuspendLayout();
 			this.groupBox4.SuspendLayout();
+			this.groupBox5.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tbPlaintext
@@ -121,7 +129,7 @@ namespace DESWF
 			this.groupBox1.Controls.Add(this.label2);
 			this.groupBox1.Controls.Add(this.rbSelectAes);
 			this.groupBox1.Controls.Add(this.rbSelectDes);
-			this.groupBox1.Location = new System.Drawing.Point(206, 12);
+			this.groupBox1.Location = new System.Drawing.Point(206, 4);
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Size = new System.Drawing.Size(202, 74);
 			this.groupBox1.TabIndex = 9;
@@ -132,7 +140,7 @@ namespace DESWF
 			this.groupBox2.Controls.Add(this.label1);
 			this.groupBox2.Controls.Add(this.tbPlaintext);
 			this.groupBox2.Controls.Add(this.btnEncrypt);
-			this.groupBox2.Location = new System.Drawing.Point(20, 242);
+			this.groupBox2.Location = new System.Drawing.Point(20, 482);
 			this.groupBox2.Name = "groupBox2";
 			this.groupBox2.Size = new System.Drawing.Size(575, 220);
 			this.groupBox2.TabIndex = 10;
@@ -143,7 +151,7 @@ namespace DESWF
 			this.groupBox3.Controls.Add(this.label3);
 			this.groupBox3.Controls.Add(this.tbCiphertext);
 			this.groupBox3.Controls.Add(this.btnDecrypt);
-			this.groupBox3.Location = new System.Drawing.Point(20, 481);
+			this.groupBox3.Location = new System.Drawing.Point(20, 721);
 			this.groupBox3.Name = "groupBox3";
 			this.groupBox3.Size = new System.Drawing.Size(575, 224);
 			this.groupBox3.TabIndex = 11;
@@ -181,7 +189,7 @@ namespace DESWF
 			// label4
 			// 
 			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(188, 712);
+			this.label4.Location = new System.Drawing.Point(188, 952);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(242, 17);
 			this.label4.TabIndex = 12;
@@ -189,10 +197,11 @@ namespace DESWF
 			// 
 			// groupBox4
 			// 
+			this.groupBox4.Controls.Add(this.label6);
 			this.groupBox4.Controls.Add(this.rb56BitKey);
 			this.groupBox4.Controls.Add(this.tbKey);
 			this.groupBox4.Controls.Add(this.btnGenerateKey);
-			this.groupBox4.Location = new System.Drawing.Point(20, 100);
+			this.groupBox4.Location = new System.Drawing.Point(20, 340);
 			this.groupBox4.Name = "groupBox4";
 			this.groupBox4.Size = new System.Drawing.Size(575, 132);
 			this.groupBox4.TabIndex = 13;
@@ -202,7 +211,7 @@ namespace DESWF
 			// 
 			this.rb56BitKey.AutoSize = true;
 			this.rb56BitKey.Checked = true;
-			this.rb56BitKey.Location = new System.Drawing.Point(198, 36);
+			this.rb56BitKey.Location = new System.Drawing.Point(440, 36);
 			this.rb56BitKey.Name = "rb56BitKey";
 			this.rb56BitKey.Size = new System.Drawing.Size(45, 21);
 			this.rb56BitKey.TabIndex = 5;
@@ -229,11 +238,85 @@ namespace DESWF
 			this.btnGenerateKey.UseVisualStyleBackColor = true;
 			this.btnGenerateKey.Click += new System.EventHandler(this.btnGenerateKey_Click);
 			// 
+			// groupBox5
+			// 
+			this.groupBox5.Controls.Add(this.btnBinaryToText);
+			this.groupBox5.Controls.Add(this.tbBinary);
+			this.groupBox5.Controls.Add(this.btnTextToBinary);
+			this.groupBox5.Controls.Add(this.label5);
+			this.groupBox5.Controls.Add(this.tbText);
+			this.groupBox5.Location = new System.Drawing.Point(20, 84);
+			this.groupBox5.Name = "groupBox5";
+			this.groupBox5.Size = new System.Drawing.Size(576, 252);
+			this.groupBox5.TabIndex = 14;
+			this.groupBox5.TabStop = false;
+			this.groupBox5.Text = "Text to Binary";
+			// 
+			// tbText
+			// 
+			this.tbText.Location = new System.Drawing.Point(17, 56);
+			this.tbText.Multiline = true;
+			this.tbText.Name = "tbText";
+			this.tbText.Size = new System.Drawing.Size(540, 56);
+			this.tbText.TabIndex = 8;
+			// 
+			// label5
+			// 
+			this.label5.AutoSize = true;
+			this.label5.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.label5.Location = new System.Drawing.Point(193, 28);
+			this.label5.Name = "label5";
+			this.label5.Size = new System.Drawing.Size(190, 22);
+			this.label5.TabIndex = 8;
+			this.label5.Text = "Text <-> Binary";
+			// 
+			// btnTextToBinary
+			// 
+			this.btnTextToBinary.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.btnTextToBinary.Location = new System.Drawing.Point(171, 116);
+			this.btnTextToBinary.Name = "btnTextToBinary";
+			this.btnTextToBinary.Size = new System.Drawing.Size(235, 32);
+			this.btnTextToBinary.TabIndex = 8;
+			this.btnTextToBinary.Text = "Text -> Binary";
+			this.btnTextToBinary.UseVisualStyleBackColor = true;
+			this.btnTextToBinary.Click += new System.EventHandler(this.btnTextToBinary_Click);
+
+			// 
+			// btnBinaryToText
+			// 
+			this.btnBinaryToText.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.btnBinaryToText.Location = new System.Drawing.Point(172, 212);
+			this.btnBinaryToText.Name = "btnBinaryToText";
+			this.btnBinaryToText.Size = new System.Drawing.Size(235, 32);
+			this.btnBinaryToText.TabIndex = 9;
+			this.btnBinaryToText.Text = "Binary -> Text";
+			this.btnBinaryToText.UseVisualStyleBackColor = true;
+			this.btnBinaryToText.Click += new System.EventHandler(this.btnBinaryToText_Click);
+			// 
+			// tbBinary
+			// 
+			this.tbBinary.Location = new System.Drawing.Point(18, 152);
+			this.tbBinary.Multiline = true;
+			this.tbBinary.Name = "tbBinary";
+			this.tbBinary.Size = new System.Drawing.Size(540, 56);
+			this.tbBinary.TabIndex = 10;
+			// 
+			// label6
+			// 
+			this.label6.AutoSize = true;
+			this.label6.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.label6.Location = new System.Drawing.Point(196, 36);
+			this.label6.Name = "label6";
+			this.label6.Size = new System.Drawing.Size(190, 22);
+			this.label6.TabIndex = 5;
+			this.label6.Text = "Keysize in bits";
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(615, 736);
+			this.ClientSize = new System.Drawing.Size(615, 972);
+			this.Controls.Add(this.groupBox5);
 			this.Controls.Add(this.groupBox4);
 			this.Controls.Add(this.label4);
 			this.Controls.Add(this.groupBox3);
@@ -249,6 +332,8 @@ namespace DESWF
 			this.groupBox3.PerformLayout();
 			this.groupBox4.ResumeLayout(false);
 			this.groupBox4.PerformLayout();
+			this.groupBox5.ResumeLayout(false);
+			this.groupBox5.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -273,6 +358,13 @@ namespace DESWF
 		private RadioButton rb56BitKey;
 		private TextBox tbKey;
 		private Button btnGenerateKey;
+		private GroupBox groupBox5;
+		private Label label5;
+		private TextBox tbText;
+		private Button btnBinaryToText;
+		private TextBox tbBinary;
+		private Button btnTextToBinary;
+		private Label label6;
 	}
 }
 
