@@ -8,7 +8,7 @@ namespace DESWF
 
 		public void EncryptWithAes(string plaintext)
 		{
-			PlaintextObject.Value = plaintext;
+			PlaintextObject.ValueInString = plaintext;
 		}
 	}
 }

@@ -1,16 +1,18 @@
-﻿///
+﻿using DES;
+
+///
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using DES;
 
 namespace DESWF
 {
 	internal class DesCipher
 	{
 		#region Permutation tables
+
 		public static readonly int[] IpValues =
 		{
 			58,50,42,34,26,18,10,2,60,52,44,36,28,20,12,4,
@@ -18,7 +20,7 @@ namespace DESWF
 			57,49,41,33,25,17,9,1,59,51,43,35,27,19,11,3,
 			61,53,45,37,29,21,13,5,63,55,47,39,31,23,15,7
 		};
-		
+
 		public static readonly int[] InverseIPValues =
 		{
 			40,8,48,16,56,24,64,32,39,7,47,15,55,23,63,31,
@@ -74,7 +76,7 @@ namespace DESWF
 
 				,46,42,50,36,29,32
 		};
-		
+
 		public static readonly int[] COutputPermutation =
 		{
 			16, 7, 20, 21, 29, 12, 28, 17, 1, 15, 23, 26, 5, 18, 31, 10,
@@ -141,7 +143,7 @@ namespace DESWF
 			}
 			};
 
-		#endregion
+		#endregion Permutation tables
 
 		/*public static readonly int[,] SBox1 = new int[,]
 		{
@@ -207,10 +209,10 @@ namespace DESWF
 			{2,1,14,7,4,10,8,13,15,12,9,0,3,5,6,11}
 		};*/
 
-		public BitArray Left32Bits = new BitArray(32);
+		private BitArray _left32Bits = new BitArray(32);
 		public Plaintext Message = new Plaintext();
 		public BitArray MessageAfterInitialPermutation = new BitArray(64);
-		public BitArray Right32Bits = new BitArray(32);
+		private BitArray _right32Bits = new BitArray(32);
 		private List<BitArray> _listOfBitBlocks;
 		private BitArray _originalKey;
 		private List<BitArray> _roundKeyList = new List<BitArray>();
@@ -218,7 +220,7 @@ namespace DESWF
 		public List<BitArray> EncryptedBlockList = new List<BitArray>();
 		public string CipherTextString;
 		public BitArray CipherTextBitArray;
-		
+
 		public static BitArray ApplyInitialPermutation(BitArray messageBeforeIp)
 		{
 			var messageAfterIp = new BitArray(messageBeforeIp.Count);
@@ -301,7 +303,7 @@ namespace DESWF
 			return newRoundKey;
 		}
 
-		public string GetStringBitArray(BitArray bitArray, bool? splitBytes = false)
+		public static string ConvertBitArrayToString(BitArray bitArray, bool? splitBytes = false)
 		{
 			var count = 0;
 			string output = "";
@@ -318,36 +320,69 @@ namespace DESWF
 			return output;
 		}
 
+		public BitArray ConvertToBitArrayInProperOrder(byte[] input)
+		{
+			BitArray array = new BitArray(input);
+			int length = array.Length;
+			int mid = (length / 2);
+
+			for (int i = 0; i < mid; i++)
+			{
+				bool bit = array[i];
+				array[i] = array[length - i - 1];
+				array[length - i - 1] = bit;
+			}
+			return array;
+		}
+
+		public static string BinaryStringToHexString(string binary)
+		{
+			StringBuilder result = new StringBuilder(binary.Length / 8 + 1);
+
+			int mod4Len = binary.Length % 8;
+			if (mod4Len != 0)
+			{
+				// pad to length multiple of 8
+				binary = binary.PadLeft(((binary.Length / 8) + 1) * 8, '0');
+			}
+
+			for (int i = 0; i < binary.Length; i += 8)
+			{
+				string eightBits = binary.Substring(i, 8);
+				result.AppendFormat("{0:X2}", Convert.ToByte(eightBits, 2));
+			}
+
+			return result.ToString();
+		}
+
 		/// <summary>
 		/// Accepts 8 bytes and converts to a bit array of 64 bits.
 		/// </summary>
 		/// <param name="input"></param>
 		/// <returns></returns>
-		public BitArray ConvertToBitArray(byte[] input)
-		{
-			return new BitArray(input);
-		}
 
 		public void DecryptWithDes()
 		{
-			//TODO: Pass in cipher text, update a plaintext property, display plaintext in text area of win form
+			//TODO: Pass in cipher text, update a input property, display input in text area of win form
 		}
 
 		/// <summary>
-		/// Method creates a byte[] from plaintext string.
-		/// Extracts 64 bits at a time until Message.Value is totally encrypted.
+		/// Method creates a byte[] from input string.
+		/// Extracts 64 bits at a time until Message.ValueInString is totally encrypted.
 		/// Will set cipher text.
 		/// </summary>
-		/// <param name="plaintext"></param>
+		/// <param name="input"></param>
+		/// <param name="encrypt"></param>
 		/// <param name="key"></param>
-		public void EncryptWithDes(string plaintext, BitArray key)
+		public void EncryptWithDes(BitArray input, bool encrypt, BitArray key)
 		{
 			_originalKey = key;
-			Message.Value = plaintext;
-			//TODO: Investigate encoding issue, trace code from plaintext input -> encoded byte array -> binary and from binary-> encoded byte array -> plaintext
-			Message.EncodedByteArray = Encoding.Default.GetBytes(Message.Value);
-			Message.EncodedBitArray = ConvertToBitArray(Message.EncodedByteArray);//Message.Encoded bit array stores all bits from plain text conversion
-			ConvertEncodedBitArrayToListOfBitBlocks();
+			Message.ValueInString = ConvertBitArrayToString(input);
+			//TODO: Investigate encoding issue, trace code from input input -> encoded byte array -> binary and from binary-> encoded byte array -> input
+			Message.ValueInBits = input;//Message.Encoded bit array stores all bits from plain text conversion
+			ConvertMessageBitArrayToListOfBitBlocks();
+
+			CreateRoundKeyList();
 
 			//encrypt each 64 bit block and append cipher text result to ciphertext member
 			//then finally call method from mainform.cs to display the ciphertext property
@@ -357,79 +392,102 @@ namespace DESWF
 				SetLeft32Bits(MessageAfterInitialPermutation);
 				SetRight32Bits(MessageAfterInitialPermutation);
 
-				for (int round = 0; round < 16; round++)
-				{
-					Left32Bits = Right32Bits;
+				if (encrypt) ExecuteEncryptionRounds();
+				else ExecuteDecryptionRounds();
 
-					//Right, Expand 32->48 bits
-					Right32Bits = GetRight32Expanded();
+				var temp = _left32Bits;
+				_left32Bits = _right32Bits;
+				_right32Bits = temp;
 
-					//Build the round keys
-					CreateRoundKeyList();
-
-					//XOR Right side with Round key(ith iteration)
-					var xorResult = Right32Bits.Xor(_roundKeyList[round]);
-
-					//Break the 48 bits down to eight 6 bit blocks, b1 to b8
-					List<BitArray> sixBitBlocks = new List<BitArray>();
-
-					var rightSideCounter = 0;
-					for (int blockIndex = 0; blockIndex < 8; blockIndex++)
-					{
-						var ba = new BitArray(6);
-						for (int bitPosition = 0; bitPosition < 6; bitPosition++)
-						{
-							ba[bitPosition] = xorResult[rightSideCounter];
-							rightSideCounter++;
-						}
-						sixBitBlocks.Add(ba);
-					}
-
-					//Run each 6 bit block through it's respective s box, get output C
-					var binaryString = "";
-					for (int i = 0; i < 8; i++)
-					{
-						var row = GetSboxRow(sixBitBlocks[i]);
-						var col = GetSboxColumn(sixBitBlocks[i]);
-						//Console.WriteLine("| Value: " + SboxList[i][row,col] + ", 4 bit rep: " + Convert.ToString(SboxList[i][row,col],2) + " ");
-						binaryString += Convert.ToString(SboxList[i][row,col], 2).PadLeft(4,'0');
-					}
-
-					//Console.WriteLine(binaryString);
-
-					var cOutput = ConvertStringToBitArray(binaryString);
-
-					//result should be C1 to C8 which are 4 bit outputs from the s box permutations
-					//Console.WriteLine(GetStringBitArray(cOutput));
-					
-					//C output permutation
-					BitArray cOutputAfterPermutation = new BitArray(32);
-					for (int i = 0; i < 32; i++)
-					{
-						cOutputAfterPermutation[i] = cOutput[COutputPermutation[i]-1];
-					}
-
-					//Assign result of xor between Function and L to right
-					Right32Bits = Left32Bits.Xor(cOutputAfterPermutation);
-					
-				}
-				BitArray FinalOutputForBlock = ApplyFinalPermutation(GetCombinedLeftRightSides(Left32Bits, Right32Bits));
+				BitArray FinalOutputForBlock = ApplyFinalPermutation(GetCombinedLeftRightSides(_left32Bits, _right32Bits));
 				EncryptedBlockList.Add(FinalOutputForBlock);
-				//Once through the 16 rounds, then do final permutation^-1 which results in cipher text.
 			}
 
 			foreach (var encryptedBlock in EncryptedBlockList)
 			{
-				CipherTextString += GetStringBitArray(encryptedBlock,false);
+				CipherTextString += ConvertBitArrayToString(encryptedBlock);
 			}
-
-			//Console.WriteLine(CipherTextString);
-			var size = EncryptedBlockList.Count * 64;
-			CipherTextBitArray = new BitArray(size);
-			CipherTextBitArray = ConvertStringToBitArray(CipherTextString);
 		}
 
-		private static BitArray ConvertStringToBitArray(string binaryString)
+		private void ExecuteEncryptionRounds()
+		{
+			for (int round = 0; round < 16; round++)
+			{
+				var cOutputAfterPermutation = GetResultOfKeyAndRightSide(round); // == F(k[round],RightSide)
+
+				var right = new BitArray(32);
+				var left = new BitArray(32);
+
+				right = cOutputAfterPermutation.Xor(_left32Bits);
+				left = _right32Bits;
+
+				_left32Bits = left;
+				_right32Bits = right;
+			}
+		}
+
+		private void ExecuteDecryptionRounds()
+		{
+			for (int round = 15; round >= 0; round--)
+			{
+				var cOutputAfterPermutation = GetResultOfKeyAndRightSide(round); // == F(k[round],RightSide)
+
+				var right = new BitArray(32);
+				var left = new BitArray(32);
+
+				right = cOutputAfterPermutation.Xor(_left32Bits);
+				left = _right32Bits;
+
+				_left32Bits = left;
+				_right32Bits = right;
+			}
+		}
+
+		private BitArray GetResultOfKeyAndRightSide(int round)
+		{
+			var right32Expanded = GetRight32Expanded();
+			var xorResult = right32Expanded.Xor(_roundKeyList[round]);
+
+			List<BitArray> sixBitBlocks = new List<BitArray>();
+
+			var rightSideCounter = 0;
+			for (int blockIndex = 0; blockIndex < 8; blockIndex++)
+			{
+				var ba = new BitArray(6);
+				for (int bitPosition = 0; bitPosition < 6; bitPosition++)
+				{
+					ba[bitPosition] = xorResult[rightSideCounter];
+					rightSideCounter++;
+				}
+				sixBitBlocks.Add(ba);
+			}
+
+			var binaryString = "";
+			for (int i = 0; i < 8; i++)
+			{
+				var row = GetSboxRow(sixBitBlocks[i]);
+				var col = GetSboxColumn(sixBitBlocks[i]);
+				binaryString += Convert.ToString(SboxList[i][row, col], 2).PadLeft(4, '0');
+			}
+
+			var cOutput = ConvertStringToBitArray(binaryString);
+
+			BitArray cOutputAfterPermutation = new BitArray(32);
+			for (int i = 0; i < 32; i++)
+			{
+				cOutputAfterPermutation[i] = cOutput[COutputPermutation[i] - 1];
+			}
+			return cOutputAfterPermutation;
+		}
+
+		public static byte[] ConvertBitArrayToByteArray(BitArray bits)
+		{
+			byte[] ret = new byte[(bits.Length - 1) / 8 + 1];
+			bits.CopyTo(ret, 0);
+			return ret;
+		}
+
+		public static BitArray ConvertStringToBitArray(string binaryString)
 		{
 			BitArray cOutput = new BitArray(binaryString.Length);
 			var num = binaryString.Length;
@@ -455,7 +513,7 @@ namespace DESWF
 			BitArray right32Expanded = new BitArray(48);
 			for (int i = 0; i < 48; i++)
 			{
-				right32Expanded[i] = Right32Bits[ExpansionValues[i] - 1];
+				right32Expanded[i] = _right32Bits[ExpansionValues[i] - 1];
 			}
 			return right32Expanded;
 		}
@@ -510,7 +568,7 @@ namespace DESWF
 		{
 			for (var i = 0; i < 32; i++)
 			{
-				Left32Bits[i] = messageAfterIp[i];
+				_left32Bits[i] = messageAfterIp[i];
 			}
 		}
 
@@ -518,22 +576,22 @@ namespace DESWF
 		{
 			for (int i = 0, j = 32; i < 32 && j < 64; i++, j++)
 			{
-				Right32Bits[i] = messageAfterIp[j];
+				_right32Bits[i] = messageAfterIp[j];
 			}
 		}
 
-		private void ConvertEncodedBitArrayToListOfBitBlocks()
+		private void ConvertMessageBitArrayToListOfBitBlocks()
 		{
 			_listOfBitBlocks = new List<BitArray>();
-			_listOfBitBlocks.Capacity = (Message.EncodedBitArray.Length % 64 != 0)
-				? (Message.EncodedBitArray.Count / 64) + 1
-				: Message.EncodedBitArray.Count / 64;
+			_listOfBitBlocks.Capacity = (Message.ValueInBits.Length % 64 != 0)
+				? (Message.ValueInBits.Count / 64) + 1
+				: Message.ValueInBits.Count / 64;
 			for (int i = 0; i < _listOfBitBlocks.Capacity; i++)
 			{
 				var temp = new BitArray(64);
-				for (int j = i * 64, k = 0; j < (i * 64) + 64 && j < Message.EncodedBitArray.Count; j++, k++)
+				for (int j = i * 64, k = 0; j < (i * 64) + 64 && j < Message.ValueInBits.Count; j++, k++)
 				{
-					temp[k] = Message.EncodedBitArray[j];
+					temp[k] = Message.ValueInBits[j];
 				}
 				_listOfBitBlocks.Add(temp);
 			}

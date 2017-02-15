@@ -5,12 +5,13 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
+using MlkPwgen;
 
 namespace DESWF
 {
 	public partial class MainForm : Form
 	{
-		public string Plaintext;
+		public BitArray Plaintext;
 		public string CiphertextString;
 		public string ChosenCipherString;
 		public Cipher ChosenCipher;
@@ -38,41 +39,56 @@ namespace DESWF
 		private void btnGenerateKey_Click(object sender, EventArgs e)
 		{
 			var selectedKey = (groupBox4.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked).Text);
-			var numGen = RandomNumberGenerator.Create();
-			var size = Int32.Parse(selectedKey);
-			Byte[] ba = new byte[size / 8];
-			numGen.GetBytes(ba);
-			Key = ConvertToBitArray(ba);
-			tbKey.Text = BitConverter.ToString(ba).Replace("-", string.Empty);
+
+			var key = PasswordGenerator.Generate(length: 8, allowed: Sets.Alphanumerics);
+
+			BitArray temp = new BitArray(Encoding.UTF8.GetBytes(key));
+			Key = temp;
+			tbKey.Text = DesCipher.ConvertBitArrayToString(Key); //BitConverter.ToString(ba).Replace("-", string.Empty);
 		}
 
 		private void btnEncrypt_Click(object sender, EventArgs e)
 		{
 			SetCipherChoice();
-			Plaintext = tbPlaintext.Text;
-			CiphertextString = Plaintext;
+			Plaintext = DesCipher.ConvertStringToBitArray(tbPlaintext.Text);
 
 			switch (ChosenCipher)
 			{
 				case Cipher.Aes:
 					AesCipher aesCipher = new AesCipher();
-					aesCipher.EncryptWithAes(Plaintext);
+					//aesCipher.EncryptWithAes(Plaintext);
 					break;
 
 				case Cipher.Des:
 					DesCipher desCipher = new DesCipher();
-					desCipher.EncryptWithDes(Plaintext, Key);
-					tbCiphertext.Text = desCipher.GetStringBitArray(desCipher.CipherTextBitArray);
-
-					byte[] bytes = new byte[desCipher.CipherTextBitArray.Count/8];
-					desCipher.CipherTextBitArray.CopyTo(bytes,0);
-					//tbCiphertext.Text += "\n" + Encoding.UTF8.GetString(bytes);
+					desCipher.EncryptWithDes(Plaintext, true, Key);
+					tbCiphertext.Text = desCipher.CipherTextString;
 					break;
 			}
 
 			
 
 			//Call next method here
+		}
+
+		private void btnDecrypt_Click(object sender, EventArgs e)
+		{
+			SetCipherChoice();
+			Plaintext = DesCipher.ConvertStringToBitArray(tbCiphertext.Text);
+
+			switch (ChosenCipher)
+			{
+				case Cipher.Aes:
+					AesCipher aesCipher = new AesCipher();
+					//aesCipher.EncryptWithAes(Plaintext);
+					break;
+
+				case Cipher.Des:
+					DesCipher desCipher = new DesCipher();
+					desCipher.EncryptWithDes(Plaintext, false, Key);
+					tbPlaintext.Text = desCipher.CipherTextString;
+					break;
+			}
 		}
 
 		private void SetCipherChoice()
