@@ -55,6 +55,7 @@ namespace DESWF
 			this.tbBinary = new System.Windows.Forms.TextBox();
 			this.btnTextToBinary = new System.Windows.Forms.Button();
 			this.tbText = new System.Windows.Forms.TextBox();
+			this.label5 = new System.Windows.Forms.Label();
 			this.groupBox1.SuspendLayout();
 			this.groupBox2.SuspendLayout();
 			this.groupBox3.SuspendLayout();
@@ -298,11 +299,22 @@ namespace DESWF
 			this.tbText.Size = new System.Drawing.Size(540, 56);
 			this.tbText.TabIndex = 8;
 			// 
+			// label5
+			// 
+			this.label5.AutoSize = true;
+			this.label5.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.label5.Location = new System.Drawing.Point(260, 32);
+			this.label5.Name = "label5";
+			this.label5.Size = new System.Drawing.Size(70, 22);
+			this.label5.TabIndex = 15;
+			this.label5.Text = "Tools";
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1206, 724);
+			this.Controls.Add(this.label5);
 			this.Controls.Add(this.groupBox5);
 			this.Controls.Add(this.groupBox4);
 			this.Controls.Add(this.label4);
@@ -351,6 +363,7 @@ namespace DESWF
 		private TextBox tbBinary;
 		private Button btnTextToBinary;
 		private Label label6;
+		private Label label5;
 	}
 }
 
